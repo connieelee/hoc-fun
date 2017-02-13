@@ -7,7 +7,7 @@ const dance = (Component) => {
       <span className="dance">
         <Component
           {...props}
-          name={props.name ? `${props.name}-dance` : "dancey"}
+          name={props.name ? `${props.name}-dance` : "-dance"}
         />
       </span>
     );
