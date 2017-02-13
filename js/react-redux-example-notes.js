@@ -42,11 +42,4 @@ export default PlayerContainer = connect(
   mapDispatchToProps
 )(Player);
 
-
-
-
-
-
-
-
-
+// afternote: I forgot to talk about the Provider! Oops.

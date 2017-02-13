@@ -1,13 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// HOCs
 const dance = (Component) => {
   return (props) => {
     return (
       <span className="dance">
         <Component
           {...props}
-          name={props.name ? `${props.name}-dance` : "dancey"}
+          name={props.name ? `${props.name}-dance` : "-dance"}
         />
       </span>
     );
@@ -39,6 +40,7 @@ const associateWithPerson = (Component, name) => {
   }
 }
 
+// Simple Component
 function Icon({ src, name, onClick }) {
   return (
     <img
@@ -50,24 +52,28 @@ function Icon({ src, name, onClick }) {
   );
 }
 
+// Enhanced Components
 const SwirlyIcon = swirl(Icon);
 const DancingIcon = dance(Icon);
 
 const ZekeIcon = associateWithPerson(Icon, 'zeke');
 const NickIcon = associateWithPerson(Icon, 'nick');
 
-const ZekeSwirl = swirl(ZekeIcon);
-const NickSwirl = swirl(NickIcon);
+const ZekeSwirl = swirl(ZekeIcon); // or you can zekeify a SwirlyIcon
+const NickSwirl = swirl(NickIcon); // same as above
 
 const ZekeDance = dance(ZekeIcon);
 const NickDance = dance(NickIcon);
 
+
+// Our mock-Slack app
 class Slack extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      msgInput: ''
+      msgInput: '',
     };
+
     this.updateMsgInput = this.updateMsgInput.bind(this);
     this.addIconToText = this.addIconToText.bind(this);
   }
@@ -85,6 +91,11 @@ class Slack extends React.Component {
   }
 
   render() {
+    const Icons = [
+      ZekeIcon, ZekeSwirl, ZekeDance,
+      NickIcon, NickSwirl, NickDance,
+    ];
+
     return (
       <div>
         <form>
@@ -96,12 +107,7 @@ class Slack extends React.Component {
           <img className="smiley" src="assets/smiley.png" />
         </form>
 
-        <ZekeIcon onClick={this.addIconToText} />
-        <NickIcon onClick={this.addIconToText} />
-        <ZekeSwirl onClick={this.addIconToText} />
-        <NickSwirl onClick={this.addIconToText} />
-        <ZekeDance onClick={this.addIconToText} />
-        <NickDance onClick={this.addIconToText} />
+        { Icons.map((Icon, i) => <Icon key={i} onClick={this.addIconToText} />) }
       </div>
     );
   }
