@@ -1,47 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// HOCs
-const dance = (Component) => {
-  return (props) => {
-    return (
-      <span className="dance">
-        <Component
-          {...props}
-          name={props.name ? `${props.name}-dance` : "-dance"}
-        />
-      </span>
-    );
-  }
-}
-
-const swirl = (Component) => {
-  return (props) => {
-    return (
-      <span className="swirl">
-        <Component
-          {...props}
-          name={props.name ? `${props.name}-swirl` : "-swirl"}
-        />
-      </span>
-    );
-  }
-}
-
-const associateWithPerson = (Component, name) => {
-  return (props) => {
-    return (
-      <Component
-        {...props}
-        src={`assets/${name}.png`}
-        name={props.name ? `${name}${props.name}` : name}
-      />
-    );
-  }
-}
-
-// Simple Component
-function Icon({ src, name, onClick }) {
+const Icon = ({ src, name, sfx, onClick }) => {
+  if (sfx) name = `${name}-${sfx}`;
   return (
     <img
       className="slack-icon"
@@ -49,71 +10,109 @@ function Icon({ src, name, onClick }) {
       name={name}
       onClick={onClick}
     />
-  );
+  )
 }
 
-// Enhanced Components
-const SwirlyIcon = swirl(Icon);
-const DancingIcon = dance(Icon);
+const setPerson = (Component, name) => {
+  return function PersonIcon(props) { // only includes onClick
+    return (
+      <Component
+        {...props}
+        src={`assets/${name}.png`}
+        name={name}
+      />
+    );
+  }
+}
 
-const ZekeIcon = associateWithPerson(Icon, 'zeke');
-const NickIcon = associateWithPerson(Icon, 'nick');
+const swirl = (Component) => {
+  return function SwirlyIcon(props) {
+    return (
+      <span className="swirl">
+        <Component
+          {...props}
+          sfx="swirl"
+        />
+      </span>
+    )
+  }
+}
 
-const ZekeSwirl = swirl(ZekeIcon); // or you can zekeify a SwirlyIcon
-const NickSwirl = swirl(NickIcon); // same as above
+const dance = (Component) => {
+  return function DancingIcon(props) {
+    return (
+      <span className="dance">
+        <Component
+          {...props}
+          sfx="dance"
+        />
+      </span>
+    )
+  }
+}
 
-const ZekeDance = dance(ZekeIcon);
-const NickDance = dance(NickIcon);
 
+const BenIcon = setPerson(Icon, 'benw');
+const ConnieIcon = setPerson(Icon, 'connie');
+const CollinIcon = setPerson(Icon, 'collin');
 
-// Our mock-Slack app
-class Slack extends React.Component {
-  constructor(props) {
-    super(props);
+const BenSwirl = swirl(BenIcon);
+const ConnieSwirl = swirl(ConnieIcon);
+const CollinSwirl = swirl(CollinIcon);
+
+const BenDance = dance(BenIcon);
+const ConnieDance = dance(ConnieIcon);
+const CollinDance = dance(CollinIcon);
+
+class SlackMessager extends React.Component {
+  constructor() {
+    super();
     this.state = {
       msgInput: '',
     };
-
     this.updateMsgInput = this.updateMsgInput.bind(this);
-    this.addIconToText = this.addIconToText.bind(this);
+    this.addIconText = this.addIconText.bind(this);
   }
 
   updateMsgInput(e) {
-    this.setState({
-      msgInput: e.target.value
-    })
+    this.setState({ msgInput: e.target.value });
   }
 
-  addIconToText(e) {
-    this.setState({
-      msgInput: this.state.msgInput + `:${e.target.name}: `
-    })
+  addIconText(e) {
+    const iconStr = ` :${e.target.name}: `;
+    // rule of thumb, if depending on previous state in next state
+    // use CB version of setState
+    this.setState(prevState => {
+      return { msgInput: prevState.msgInput + iconStr };
+    });
   }
 
   render() {
-    const Icons = [
-      ZekeIcon, ZekeSwirl, ZekeDance,
-      NickIcon, NickSwirl, NickDance,
-    ];
-
     return (
       <div>
         <form>
           <button>+</button>
-          <input
-            value={this.state.msgInput}
-            onChange={this.updateMsgInput}
-          />
+          <input value={this.state.msgInput} onChange={this.updateMsgInput} />
           <img className="smiley" src="assets/smiley.png" />
         </form>
 
-        { Icons.map((Icon, i) => <Icon key={i} onClick={this.addIconToText} />) }
+        <div>
+          <BenIcon onClick={this.addIconText} />
+          <BenSwirl onClick={this.addIconText} />
+          <BenDance onClick={this.addIconText} />
+          <ConnieIcon onClick={this.addIconText} />
+          <ConnieSwirl onClick={this.addIconText} />
+          <ConnieDance onClick={this.addIconText} />
+          <CollinIcon onClick={this.addIconText} />
+          <CollinSwirl onClick={this.addIconText} />
+          <CollinDance onClick={this.addIconText} />
+        </div>
       </div>
     );
   }
 }
 
 ReactDOM.render(
-  <Slack />,
-  document.getElementById('app')
+  <SlackMessager />,
+  document.getElementById('app'),
 );
