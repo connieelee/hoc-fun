@@ -1,22 +1,34 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const Icon = ({ src, name, sfx, onClick }) => {
-  if (sfx) name = `${name}-${sfx}`;
+const Icon = ({ src, name, addIconText }) => {
   return (
     <img
       className="slack-icon"
       src={src}
       name={name}
-      onClick={onClick}
+      onClick={addIconText}
     />
-  )
+  );
+};
+
+const addSfx = (Component, sfx) => {
+  return function SfxComponent(props) {
+    return (
+      <span className={sfx}>
+        <Component
+          {...props}
+          name={`${props.name}-${sfx}`}
+        />
+      </span>
+    );
+  }
 }
 
-const setPerson = (Component, name) => {
-  return function PersonIcon(props) { // only includes onClick
+const setPerson = (Icon, name) => {
+  return function PersonIcon(props) {
     return (
-      <Component
+      <Icon
         {...props}
         src={`assets/${name}.png`}
         name={name}
@@ -25,44 +37,12 @@ const setPerson = (Component, name) => {
   }
 }
 
-const swirl = (Component) => {
-  return function SwirlyIcon(props) {
-    return (
-      <span className="swirl">
-        <Component
-          {...props}
-          sfx="swirl"
-        />
-      </span>
-    )
-  }
-}
+const SwirlIcon = addSfx(Icon, 'swirl');
+const DanceIcon = addSfx(Icon, 'dance');
 
-const dance = (Component) => {
-  return function DancingIcon(props) {
-    return (
-      <span className="dance">
-        <Component
-          {...props}
-          sfx="dance"
-        />
-      </span>
-    )
-  }
-}
-
-
-const BenIcon = setPerson(Icon, 'benw');
-const ConnieIcon = setPerson(Icon, 'connie');
 const CollinIcon = setPerson(Icon, 'collin');
-
-const BenSwirl = swirl(BenIcon);
-const ConnieSwirl = swirl(ConnieIcon);
-const CollinSwirl = swirl(CollinIcon);
-
-const BenDance = dance(BenIcon);
-const ConnieDance = dance(ConnieIcon);
-const CollinDance = dance(CollinIcon);
+const CollinSwirl = setPerson(SwirlIcon, 'collin');
+const CollinDance = setPerson(DanceIcon, 'collin');
 
 class SlackMessager extends React.Component {
   constructor() {
@@ -79,11 +59,9 @@ class SlackMessager extends React.Component {
   }
 
   addIconText(e) {
-    const iconStr = ` :${e.target.name}: `;
-    // rule of thumb, if depending on previous state in next state
-    // use CB version of setState
+    const text = ` :${e.target.name}:`;
     this.setState(prevState => {
-      return { msgInput: prevState.msgInput + iconStr };
+      return { msgInput: prevState.msgInput + text };
     });
   }
 
@@ -95,17 +73,10 @@ class SlackMessager extends React.Component {
           <input value={this.state.msgInput} onChange={this.updateMsgInput} />
           <img className="smiley" src="assets/smiley.png" />
         </form>
-
         <div>
-          <BenIcon onClick={this.addIconText} />
-          <BenSwirl onClick={this.addIconText} />
-          <BenDance onClick={this.addIconText} />
-          <ConnieIcon onClick={this.addIconText} />
-          <ConnieSwirl onClick={this.addIconText} />
-          <ConnieDance onClick={this.addIconText} />
-          <CollinIcon onClick={this.addIconText} />
-          <CollinSwirl onClick={this.addIconText} />
-          <CollinDance onClick={this.addIconText} />
+          <CollinIcon addIconText={this.addIconText} />
+          <CollinSwirl addIconText={this.addIconText} />
+          <CollinDance addIconText={this.addIconText} />
         </div>
       </div>
     );
