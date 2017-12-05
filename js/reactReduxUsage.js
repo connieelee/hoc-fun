@@ -1,4 +1,4 @@
-import { connect, Provider } from 'react-redux';
+import { connect } from 'react-redux';
 
 const MsgDisplayer = (props) => (
   <div>
@@ -27,10 +27,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(MsgDisplayer);
 
 // in another file
 import MsgDisplayer from './components/MsgDisplayer';
-<MsgDisplayer hello="hello" /> // but this has been connected to store!
+<MsgDisplayer hello="hello" /> // this has been connected to store! but no other component needs to know/care :-)
 
+
+// way way way simplified idea of how connect works
 function connect (mapState, mapDispatch) {
-  const { getState, dispatch } = store; // imagine connect knows about the store somehow
+  const { getState, dispatch } = store; // imagine connect just knows about the redux store somehow
   const stateProps = mapState(getState());
   const dispatchProps = mapDispatch(dispatch);
   return function(Component) {
@@ -47,7 +49,9 @@ function connect (mapState, mapDispatch) {
 }
 
 
-// how does react-redux get access to the store?! - only need to do once at top level
+// how does react-redux get access to the store?!
+import { Provider } from 'react-redux';
 <Provider store={yourReduxStore}>
   <YourReactAppRoot />
 </Provider>
+// only need to do once at top level!
